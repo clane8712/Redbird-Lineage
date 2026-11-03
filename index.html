@@ -137,22 +137,33 @@ aside .close { position: absolute; top: 10px; right: 10px; width: 32px; height: 
 .empty { font-size: 13px; color: var(--faint); }
 .note { font-size: 12px; color: var(--faint); line-height: 1.5; margin-top: auto; }
 @media (max-width: 720px) {
-  h1 { font-size: 24px; }
-  .search input { width: 150px; }
-  .controls { width: 100%; }
-  .search { flex: 1 1 120px; min-width: 0; } .search input { width: 100%; }
+  header { padding-block: 8px; gap: 8px; }
+  .eyebrow { font-size: 9px; }
+  h1 { font-size: 22px; }
+  .controls { width: 100%; gap: 6px; }
+  .search { flex: 1 1 calc(100% - 214px); min-width: 0; } .search input { width: 100%; height: 34px; }
+  .chip.reset { margin-left: auto; }
   .results { min-width: 230px; left: auto; right: 0; }
-  .hint, .era { white-space: normal; text-align: center; width: max-content; max-width: calc(100% - 32px); box-sizing: border-box; }
-  .era { font-size: 11px; }
-  .chip[data-type] { padding: 0 10px; }
-  .seg button { padding: 0 10px; }
+  .seg button { height: 28px; padding: 0 10px; font-size: 12px; }
+  .chip { height: 30px; padding: 0 10px; font-size: 12px; gap: 6px; }
+  .hint, .era { white-space: normal; text-align: center; width: max-content; max-width: calc(100% - 32px); box-sizing: border-box; font-size: 11px; }
   .legend { display: none; }
   .hint { top: auto; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
-  aside { top: auto; left: max(8px, env(safe-area-inset-left, 0px)); right: max(8px, env(safe-area-inset-right, 0px)); bottom: calc(8px + env(safe-area-inset-bottom, 0px)); width: auto; max-height: 52%; }
-  .p-name { font-size: 32px; }
-  .p-art img { max-height: 150px; }
-  .p-art.label img { width: auto; max-height: 150px; }
-  .p-art.label { background: #FFFFFF; }
+  /* bottom sheet: name and small art side by side, facts underneath, scrolls inside */
+  aside { top: auto; left: max(8px, env(safe-area-inset-left, 0px)); right: max(8px, env(safe-area-inset-right, 0px)); bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    width: auto; max-height: 48%; padding: 14px 14px 16px; display: grid; grid-template-columns: minmax(0, 1fr) 96px; column-gap: 12px; row-gap: 10px; align-content: start; }
+  aside > * { grid-column: 1 / -1; }
+  aside .close { top: 8px; right: 8px; }
+  .p-eyebrow { grid-row: 1; padding-right: 40px; }
+  .p-name { grid-column: 1; grid-row: 2; font-size: 30px; padding-right: 0; }
+  .tags { grid-column: 1; grid-row: 3; align-self: start; }
+  .p-art, .p-art.label { grid-column: 2; grid-row: 2 / span 2; margin: 0; width: 96px; height: 96px; padding: 6px; box-sizing: border-box; align-self: start; }
+  .p-art img, .p-art.label img { width: auto; max-width: 100%; max-height: 84px; }
+  .p-art.label { padding: 0; background: #FFFFFF; }
+  .p-art.label img { max-width: 100%; max-height: 96px; }
+  .p-cap { display: none; }
+  .facts { font-size: 13px; gap: 5px 10px; }
+  .note { margin-top: 0; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -343,7 +354,7 @@ function fit(ids, ms = 700) {
   const pts = (ids ? ids.map(i => N[i]) : nodes.filter(n => n.vis)).filter(Boolean);
   const x0 = d3.min(pts, d => d.x) - 60, x1 = d3.max(pts, d => d.x) + 60, y0 = d3.min(pts, d => d.y) - 50, y1 = d3.max(pts, d => d.y) + 60;
   const panelOpen = !document.getElementById('panel').hidden, narrow = W() < 720;
-  const aw = W() - (panelOpen && !narrow ? 340 : 0), ah = H() * (panelOpen && narrow ? .45 : 1);
+  const aw = W() - (panelOpen && !narrow ? 340 : 0), ah = panelOpen && narrow ? Math.max(120, document.getElementById('panel').offsetTop - 8) : H();
   const s = Math.max(.2, Math.min(ids ? 2.2 : 1.6, .92 / Math.max((x1 - x0) / aw, (y1 - y0) / ah)));
   const t = d3.zoomIdentity.translate(aw / 2 - s * (x0 + x1) / 2, ah / 2 - s * (y0 + y1) / 2).scale(s);
   svg.transition().duration(matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : ms).call(zoom.transform, t);
@@ -416,7 +427,7 @@ function select(id) {
       <div class="group"><h3>Redbird strains from it</h3>${chips(f.children)}</div>
       <div class="note">Never grown by Redbird. It shows up in the genetics of the strains above.</div>`;
   }
-  panel.hidden = false;
+  panel.hidden = false; panel.scrollTop = 0;
   panel.querySelector('.close').onclick = clear;
   panel.querySelectorAll('[data-go]').forEach(b => b.onclick = () => select(b.dataset.go));
   fit([...on]);
