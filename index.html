@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>[hidden]{display:none!important}</style>
+<title>Redbird Strain Constellation</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: a night-sky map fills the screen; a slim header on top; a detail panel docks right (computer) or slides up (phone). Single dark look by choice. */
+:root {
+  color-scheme: dark;
+  --sky: #0B0B10;
+  --sky-2: #14141B;
+  --panel: #17171F;
+  --line: #2A2A35;
+  --ink: #F3F1F4;
+  --muted: #9A97A6;
+  --faint: #5E5B6B;
+  --red: #E0243F;
+  --red-deep: #C8102E;
+  --indica: #C4B5FD;
+  --sativa: #FCD34D;
+  --hybrid: #86EFAC;
+  --display: 'Bebas Neue', 'Oswald', Impact, sans-serif;
+  --body: 'DM Sans', system-ui, -apple-system, Segoe UI, sans-serif;
+  --mono: 'Space Mono', ui-monospace, Menlo, monospace;
+}
+html, body { height: 100%; }
+body { margin: 0; background: var(--sky); color: var(--ink); font-family: var(--body); overflow: hidden; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--sky-2); }
+.app { position: relative; height: 100%; display: flex; flex-direction: column; }
+header {
+  position: relative; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+  padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--sky-2); border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; flex-direction: column; gap: 2px; margin-right: auto; min-width: 0; }
+.eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--red); }
+h1 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 30px; letter-spacing: 1.5px; line-height: 1; text-wrap: balance; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.search { position: relative; }
+.search input {
+  width: 200px; max-width: 100%; height: 36px; box-sizing: border-box; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--sky); color: var(--ink); font: inherit; font-size: 16px;
+}
+.search input::placeholder { color: var(--faint); }
+.search input:focus-visible, button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.results { position: absolute; top: 40px; left: 0; right: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; z-index: 20; }
+.results button { display: flex; justify-content: space-between; gap: 10px; width: 100%; padding: 9px 12px; border: 0; background: none; color: var(--ink); font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+.results button:hover, .results button.on { background: var(--line); }
+.results small { color: var(--muted); font-family: var(--mono); font-size: 10px; text-transform: uppercase; }
+.chip {
+  height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted);
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+}
+.chip i { width: 9px; height: 9px; border-radius: 99px; display: inline-block; }
+.chip[aria-pressed="true"] { color: var(--ink); border-color: #4A4757; background: var(--line); }
+.chip.reset { color: var(--ink); }
+main { position: relative; flex: 1; min-height: 0; }
+svg { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+svg:active { cursor: grabbing; }
+.stars circle { fill: #fff; }
+.link { stroke: #3B3947; stroke-width: 1; fill: none; }
+.link.house { stroke: #7A2433; stroke-width: 1.6; }
+.link.hi { stroke: var(--red); stroke-width: 2; opacity: 1; }
+.node { cursor: pointer; }
+.node .halo { fill: var(--red); opacity: 0; }
+.node.flower .halo { opacity: .18; }
+.node .dot { stroke: var(--sky); stroke-width: 2; }
+.node.outside .dot { fill: #6D6A7A; stroke-width: 1.5; }
+.node text { font-family: var(--body); fill: var(--ink); paint-order: stroke; stroke: var(--sky); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; }
+.node.redbird text { font-size: 13px; font-weight: 700; }
+.node.outside text { font-size: 10.5px; fill: var(--muted); font-weight: 500; }
+.node.sel .dot { stroke: var(--ink); stroke-width: 3; }
+.dim .node:not(.hi), .dim .link:not(.hi) { opacity: .12; }
+.dim .node.hi text { opacity: 1; }
+.legend {
+  position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 10px; background: rgba(20,20,27,.86); border: 1px solid var(--line);
+  font-size: 12px; color: var(--muted); pointer-events: none;
+}
+.legend div { display: flex; align-items: center; gap: 8px; }
+.legend .big { width: 14px; height: 14px; border-radius: 99px; background: var(--hybrid); }
+.legend .small { width: 7px; height: 7px; margin: 0 3.5px; border-radius: 99px; background: #6D6A7A; }
+.legend .ring { width: 14px; height: 14px; border-radius: 99px; background: rgba(224,36,63,.3); box-shadow: 0 0 0 3px rgba(224,36,63,.18); }
+.legend .ln { width: 14px; height: 2px; background: #7A2433; }
+.hint { position: absolute; left: 50%; transform: translateX(-50%); top: 14px; font-size: 12px; color: var(--muted); background: rgba(20,20,27,.86); border: 1px solid var(--line); padding: 6px 12px; border-radius: 999px; pointer-events: none; white-space: nowrap; }
+aside {
+  position: absolute; top: 12px; right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: 320px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: auto; padding: 18px; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 14px; box-shadow: 0 10px 40px rgba(0,0,0,.45);
+}
+aside[hidden], .results[hidden], .hint[hidden] { display: none !important; }
+aside .close { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: 18px; cursor: pointer; }
+.p-eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); }
+.p-name { font-family: var(--display); font-size: 40px; letter-spacing: 1.5px; line-height: .95; margin: 0; padding-right: 30px; text-wrap: balance; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink); }
+.tag.Indica { color: var(--indica); border-color: rgba(196,181,253,.35); }
+.tag.Sativa { color: var(--sativa); border-color: rgba(252,211,77,.35); }
+.tag.Hybrid { color: var(--hybrid); border-color: rgba(134,239,172,.35); }
+.tag.flower { color: #FF8597; border-color: rgba(224,36,63,.45); }
+.tag.beta { color: var(--sky); background: var(--ink); border-color: var(--ink); }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 13px; }
+.facts dt { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--faint); padding-top: 3px; }
+.facts dd { margin: 0; color: var(--ink); min-width: 0; }
+.group h3 { margin: 0 0 7px; font-family: var(--mono); font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--red); font-weight: 700; }
+.list { display: flex; flex-wrap: wrap; gap: 6px; }
+.list button { padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--sky-2); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.list button i { width: 8px; height: 8px; border-radius: 99px; }
+.list button:hover { border-color: #4A4757; }
+.empty { font-size: 13px; color: var(--faint); }
+.note { font-size: 12px; color: var(--faint); line-height: 1.5; margin-top: auto; }
+@media (max-width: 720px) {
+  h1 { font-size: 24px; }
+  .search input { width: 150px; }
+  .legend { display: none; }
+  .hint { top: auto; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+  aside { top: auto; left: max(8px, env(safe-area-inset-left, 0px)); right: max(8px, env(safe-area-inset-right, 0px)); bottom: calc(8px + env(safe-area-inset-bottom, 0px)); width: auto; max-height: 52%; }
+  .p-name { font-size: 32px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <span class="eyebrow">Redbird · strain lineage</span>
+      <h1>The Redbird Constellation</h1>
+    </div>
+    <div class="controls">
+      <div class="search">
+        <input id="q" type="search" placeholder="Find a strain" autocomplete="off" aria-label="Find a strain">
+        <div class="results" id="results" hidden></div>
+      </div>
+      <button class="chip" data-type="Indica" aria-pressed="true"><i style="background:var(--indica)"></i>Indica</button>
+      <button class="chip" data-type="Sativa" aria-pressed="true"><i style="background:var(--sativa)"></i>Sativa</button>
+      <button class="chip" data-type="Hybrid" aria-pressed="true"><i style="background:var(--hybrid)"></i>Hybrid</button>
+      <button class="chip reset" id="reset">Show all</button>
+    </div>
+  </header>
+  <main>
+    <svg id="map" aria-label="Map of Redbird strains and their parents"></svg>
+    <div class="hint" id="hint">Tap a strain to see its family · drag to move · pinch or scroll to zoom</div>
+    <div class="legend">
+      <div><span class="big"></span>Redbird strain (color = type)</div>
+      <div><span class="small"></span>Outside parent</div>
+      <div><span class="ring"></span>In the flower rooms now</div>
+      <div><span class="ln"></span>Redbird strain that parents another</div>
+    </div>
+    <aside id="panel" hidden></aside>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+const DATA = {"strains": [{"name": "8 Mile Citrus", "type": "Sativa", "genetics": "Chem 4 x Poison OG #4 x Pure Thai x Face Off #4", "breeder": "Source Genetics", "section": "Beta Bud", "inFlower": true, "phenos": 2, "next": "2026-12-17", "parents": ["Chem 4", "Poison OG #4", "Pure Thai", "Face Off #4"]}, {"name": "Chemnesia", "type": "Sativa", "genetics": "Amnesia Lemon Haze X Chemdog 91", "breeder": "Lucky Dog Seed Co.", "section": "Beta Bud", "inFlower": true, "phenos": 6, "next": "2026-11-05", "parents": ["Amnesia Lemon Haze", "Chemdog 91"]}, {"name": "Pure Thai", "type": "Sativa", "genetics": "Chem 91 X Pure Thai X Face Off #4", "breeder": "Source Genetics", "section": "Beta Bud", "inFlower": true, "phenos": 1, "next": "2026-12-03", "parents": ["Chemdog 91", "Face Off #4"]}, {"name": "Shipera Sour", "type": "Hybrid", "genetics": "OG Kush x KG Sour D Bx2", "breeder": "Karma Genetics", "section": "Beta Bud", "inFlower": true, "phenos": 1, "next": "2026-12-10", "parents": ["OG Kush", "Sour D Bx2"]}, {"name": "Sour Melon", "type": "Indica", "genetics": "Melon x Sour D Bx2", "breeder": "Karma Genetics", "section": "Beta Bud", "inFlower": true, "phenos": 1, "next": "2026-10-29", "parents": ["Melon", "Sour D Bx2"]}, {"name": "Acai Gelato", "type": "Indica", "genetics": "Thin Mint x Sunset Sherb", "breeder": "Sherbinskis", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Thin Mint", "Sunset Sherbet"]}, {"name": "Black DOG", "type": "Indica", "genetics": "Blackberry Kush x Emerald Headband", "breeder": "HSO", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Blackberry Kush", "Emerald Headband"]}, {"name": "Blue Dream", "type": "Sativa", "genetics": "Blueberry x Super Silver Haze", "breeder": "HSO", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-11-05", "parents": ["Blueberry", "Super Silver Haze"]}, {"name": "Blueberry Haze", "type": "Sativa", "genetics": "Blueberry x Haze", "breeder": "Unknown", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-11-26", "parents": ["Blueberry", "Haze"]}, {"name": "Cherry Concussion", "type": "Indica", "genetics": "Headband x Caked Up Cherries", "breeder": "Relentless Genetics", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-12-17", "parents": ["Headband", "Caked Up Cherries"]}, {"name": "Chocolate Bars", "type": "Sativa", "genetics": "GMO x Mint Chocolate Chip", "breeder": "Exotic Genetics", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-10-29", "parents": ["GMO", "Mint Chocolate Chip"]}, {"name": "Collision Kush", "type": "Indica", "genetics": "Triangle Kush x Kush Mints", "breeder": "Seed Junky Genetics", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Triangle Kush", "Kush Mints"]}, {"name": "Colonel Crunch", "type": "Indica", "genetics": "Scoops x Strawberries & Cream", "breeder": "Exotic Genetics", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-11-26", "parents": ["Scoops", "Strawberries & Cream"]}, {"name": "Crumbled Lime", "type": "Sativa", "genetics": "Citron Cookies x Biker Kush", "breeder": "Karma Genetics", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-12-17", "parents": ["Citron Cookies", "Biker Kush"]}, {"name": "Crunch Berries", "type": "Hybrid", "genetics": "Blueberry x Triple OG", "breeder": "Exotic Genetics", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-11-05", "parents": ["Blueberry", "Triple OG"]}, {"name": "Dosi Pop", "type": "Indica", "genetics": "Dosidos x Triangle Kush Bx2", "breeder": "Seed Junky Genetics", "section": "Lineup", "inFlower": false, "phenos": 1, "next": "2027-01-14", "parents": ["Do-Si-Dos", "Triangle Kush"]}, {"name": "Fresh Powder", "type": "Sativa", "genetics": "Amnesia Haze x The Menthol", "breeder": "WY East Farms", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Amnesia Haze", "The Menthol"]}, {"name": "Gelato", "type": "Hybrid", "genetics": "Sunset Sherbet x Thin Mint Girl Scout Cookies", "breeder": "Sherbinskis", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Sunset Sherbet", "Thin Mint"]}, {"name": "Gingerbread Man", "type": "Hybrid", "genetics": "Animal Cookies x Maitai #4", "breeder": "Clearwater Genetics", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Animal Cookies", "Maitai #4"]}, {"name": "GMO", "type": "Hybrid", "genetics": "Chemdawg x Girl Scout Cookies", "breeder": "Mamiko Seeds", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-10-29", "parents": ["Chemdawg", "Girl Scout Cookies"]}, {"name": "Grape Cake", "type": "Indica", "genetics": "Wedding Pie x Triangle Mints", "breeder": "Seed Junky Genetics", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-10-29", "parents": ["Wedding Pie", "Triangle Mints"]}, {"name": "Grape Pie", "type": "Hybrid", "genetics": "Cherry Pie x Grape Stomper", "breeder": "Cannarado Genetics", "section": "Lineup", "inFlower": false, "phenos": 1, "next": "2027-01-14", "parents": ["Cherry Pie", "Grape Stomper"]}, {"name": "Ice Cream Cake", "type": "Indica", "genetics": "Wedding Cake x Gelato #33", "breeder": "Oni Seed Co.", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Wedding Cake", "Gelato"]}, {"name": "Jungle Fruit", "type": "Hybrid", "genetics": "Monkey Mints x Strawberries & Cream", "breeder": "exoticgenetix", "section": "Lineup", "inFlower": false, "phenos": 1, "next": "2027-01-28", "parents": ["Monkey Mints", "Strawberries & Cream"]}, {"name": "Kitchen Sink", "type": "Hybrid", "genetics": "GMO x Sundae Driver", "breeder": "Cannarado Genetics", "section": "Lineup", "inFlower": false, "phenos": 1, "next": "2027-01-07", "parents": ["GMO", "Sundae Driver"]}, {"name": "Kush Cream Cake", "type": "Indica", "genetics": "Ice Cream Cake x Kush Mints 11", "breeder": "Seed Junky Genetics", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-11-12", "parents": ["Ice Cream Cake", "Kush Mints"]}, {"name": "Kush Mints", "type": "Hybrid", "genetics": "Animal Mints x Bubba Kush", "breeder": "Seed Junky Genetics", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-11-12", "parents": ["Animal Mints", "Bubba Kush"]}, {"name": "LA Pop Rockz", "type": "Indica", "genetics": "Z Animal x Triangle Kush Bx2", "breeder": "Seed Junky Genetics", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-11-12", "parents": ["Z Animal", "Triangle Kush"]}, {"name": "LA Wedding Pop", "type": "Indica", "genetics": "Wedding Cake x Triangle Kush Bx2", "breeder": "Seed Junky Genetics", "section": "Lineup", "inFlower": false, "phenos": 1, "next": "2027-01-21", "parents": ["Wedding Cake", "Triangle Kush"]}, {"name": "Lip Smacker", "type": "Hybrid", "genetics": "Sherbert x Strawberries & Cream", "breeder": "Exotic Genetix", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Sunset Sherbet", "Strawberries & Cream"]}, {"name": "Maitai Gushers", "type": "Hybrid", "genetics": "Gushers x Maitai #4", "breeder": "Clearwater Genetics", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Gushers", "Maitai #4"]}, {"name": "Milk & Cookies", "type": "Hybrid", "genetics": "Cookies & Cream x Triple OG", "breeder": "exoticgenetix", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Cookies & Cream", "Triple OG"]}, {"name": "Mint Smash", "type": "Hybrid", "genetics": "Kush Mints x Maitai #4", "breeder": "Clearwater Genetics", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Kush Mints", "Maitai #4"]}, {"name": "Mitten Cake Batter", "type": "Hybrid", "genetics": "Mitten Cake x Kush Mints", "breeder": "Seed Junky Genetics", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Mitten Cake", "Kush Mints"]}, {"name": "MK Ultra", "type": "Indica", "genetics": "G13 X OG Kush", "breeder": "T.H. Seeds", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["G13", "OG Kush"]}, {"name": "Nila Waffer", "type": "Hybrid", "genetics": "Wedding Cake x Sundae Driver", "breeder": "Cannarado", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Wedding Cake", "Sundae Driver"]}, {"name": "Orange Cookies", "type": "Hybrid", "genetics": "Orange Juice x Girl Scout Cookies", "breeder": "Franchise Genetics", "section": "Lineup", "inFlower": false, "phenos": 1, "next": "2027-01-07", "parents": ["Orange Juice", "Girl Scout Cookies"]}, {"name": "Orange Kush Mints", "type": "Hybrid", "genetics": "Orange Cookies x Kush Mints 11", "breeder": "Seed Junky", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Orange Cookies", "Kush Mints"]}, {"name": "Papaya Cake", "type": "Hybrid", "genetics": "Papaya x Wedding Cake x White OG", "breeder": "Oni Seed Co.", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Papaya", "Wedding Cake", "White OG"]}, {"name": "Raspberry Dosido", "type": "Indica", "genetics": "Do-Si-Dos x Pink Champagne", "breeder": "Haute Genetics", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-10-29", "parents": ["Do-Si-Dos", "Pink Champagne"]}, {"name": "Scoops", "type": "Hybrid", "genetics": "Cookies & Cream x (Gelato x Tina)", "breeder": "Exotic Genetix", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Cookies & Cream", "Gelato", "Tina"]}, {"name": "Sour Diesel", "type": "Sativa", "genetics": "Chemdawg x Super Skunk", "breeder": "Barney's Farm", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-11-12", "parents": ["Chemdawg", "Super Skunk"]}, {"name": "Sour Power OG", "type": "Sativa", "genetics": "Sour Power x Biker Kush", "breeder": "Karma Genetics", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Sour Power", "Biker Kush"]}, {"name": "Strawberries & Cream", "type": "Hybrid", "genetics": "Strawberry x Cookies & Cream F2", "breeder": "Exotic Genetix", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Strawberry", "Cookies & Cream"]}, {"name": "Tropicanna Garlic", "type": "Sativa", "genetics": "GMO x Tropicanna Cookies", "breeder": "Oni Seed Co.", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-12-17", "parents": ["GMO", "Tropicanna Cookies"]}, {"name": "Tropicanna Haze", "type": "Sativa", "genetics": "Skunk Valley Haze x Tropicanna Cookies", "breeder": "Oni Seed Co.", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Skunk Valley Haze", "Tropicanna Cookies"]}, {"name": "Ultra Sour Chem", "type": "Sativa", "genetics": "MK Ultra x East Coast Sour Diesel", "breeder": "Cannarado", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["MK Ultra", "East Coast Sour Diesel"]}, {"name": "Wedding Cake", "type": "Hybrid", "genetics": "Girls Scout Cookies x Cherry Pie", "breeder": "Seed Junky Genetics", "section": "Lineup", "inFlower": false, "phenos": 1, "next": "2027-01-21", "parents": ["Girl Scout Cookies", "Cherry Pie"]}, {"name": "White OG", "type": "Indica", "genetics": "The White x OG Kush", "breeder": "Karma Genetics", "section": "Lineup", "inFlower": true, "phenos": 1, "next": "2026-11-05", "parents": ["The White", "OG Kush"]}, {"name": "Zaitai", "type": "Hybrid", "genetics": "Mai Thai x Zookies", "breeder": "Clearwater", "section": "Lineup", "inFlower": false, "phenos": 1, "next": null, "parents": ["Mai Thai", "Zookies"]}], "outside": ["Amnesia Haze", "Amnesia Lemon Haze", "Animal Cookies", "Animal Mints", "Biker Kush", "Blackberry Kush", "Blueberry", "Bubba Kush", "Caked Up Cherries", "Chem 4", "Chemdawg", "Chemdog 91", "Cherry Pie", "Citron Cookies", "Cookies & Cream", "Do-Si-Dos", "East Coast Sour Diesel", "Emerald Headband", "Face Off #4", "G13", "Girl Scout Cookies", "Grape Stomper", "Gushers", "Haze", "Headband", "Mai Thai", "Maitai #4", "Melon", "Mint Chocolate Chip", "Mitten Cake", "Monkey Mints", "OG Kush", "Orange Juice", "Papaya", "Pink Champagne", "Poison OG #4", "Skunk Valley Haze", "Sour D Bx2", "Sour Power", "Strawberry", "Sundae Driver", "Sunset Sherbet", "Super Silver Haze", "Super Skunk", "The Menthol", "The White", "Thin Mint", "Tina", "Triangle Kush", "Triangle Mints", "Triple OG", "Tropicanna Cookies", "Wedding Pie", "Z Animal", "Zookies"], "links": [["Chem 4", "8 Mile Citrus"], ["Poison OG #4", "8 Mile Citrus"], ["Pure Thai", "8 Mile Citrus"], ["Face Off #4", "8 Mile Citrus"], ["Amnesia Lemon Haze", "Chemnesia"], ["Chemdog 91", "Chemnesia"], ["Chemdog 91", "Pure Thai"], ["Face Off #4", "Pure Thai"], ["OG Kush", "Shipera Sour"], ["Sour D Bx2", "Shipera Sour"], ["Melon", "Sour Melon"], ["Sour D Bx2", "Sour Melon"], ["Thin Mint", "Acai Gelato"], ["Sunset Sherbet", "Acai Gelato"], ["Blackberry Kush", "Black DOG"], ["Emerald Headband", "Black DOG"], ["Blueberry", "Blue Dream"], ["Super Silver Haze", "Blue Dream"], ["Blueberry", "Blueberry Haze"], ["Haze", "Blueberry Haze"], ["Headband", "Cherry Concussion"], ["Caked Up Cherries", "Cherry Concussion"], ["GMO", "Chocolate Bars"], ["Mint Chocolate Chip", "Chocolate Bars"], ["Triangle Kush", "Collision Kush"], ["Kush Mints", "Collision Kush"], ["Scoops", "Colonel Crunch"], ["Strawberries & Cream", "Colonel Crunch"], ["Citron Cookies", "Crumbled Lime"], ["Biker Kush", "Crumbled Lime"], ["Blueberry", "Crunch Berries"], ["Triple OG", "Crunch Berries"], ["Do-Si-Dos", "Dosi Pop"], ["Triangle Kush", "Dosi Pop"], ["Amnesia Haze", "Fresh Powder"], ["The Menthol", "Fresh Powder"], ["Sunset Sherbet", "Gelato"], ["Thin Mint", "Gelato"], ["Animal Cookies", "Gingerbread Man"], ["Maitai #4", "Gingerbread Man"], ["Chemdawg", "GMO"], ["Girl Scout Cookies", "GMO"], ["Wedding Pie", "Grape Cake"], ["Triangle Mints", "Grape Cake"], ["Cherry Pie", "Grape Pie"], ["Grape Stomper", "Grape Pie"], ["Wedding Cake", "Ice Cream Cake"], ["Gelato", "Ice Cream Cake"], ["Monkey Mints", "Jungle Fruit"], ["Strawberries & Cream", "Jungle Fruit"], ["GMO", "Kitchen Sink"], ["Sundae Driver", "Kitchen Sink"], ["Ice Cream Cake", "Kush Cream Cake"], ["Kush Mints", "Kush Cream Cake"], ["Animal Mints", "Kush Mints"], ["Bubba Kush", "Kush Mints"], ["Z Animal", "LA Pop Rockz"], ["Triangle Kush", "LA Pop Rockz"], ["Wedding Cake", "LA Wedding Pop"], ["Triangle Kush", "LA Wedding Pop"], ["Sunset Sherbet", "Lip Smacker"], ["Strawberries & Cream", "Lip Smacker"], ["Gushers", "Maitai Gushers"], ["Maitai #4", "Maitai Gushers"], ["Cookies & Cream", "Milk & Cookies"], ["Triple OG", "Milk & Cookies"], ["Kush Mints", "Mint Smash"], ["Maitai #4", "Mint Smash"], ["Mitten Cake", "Mitten Cake Batter"], ["Kush Mints", "Mitten Cake Batter"], ["G13", "MK Ultra"], ["OG Kush", "MK Ultra"], ["Wedding Cake", "Nila Waffer"], ["Sundae Driver", "Nila Waffer"], ["Orange Juice", "Orange Cookies"], ["Girl Scout Cookies", "Orange Cookies"], ["Orange Cookies", "Orange Kush Mints"], ["Kush Mints", "Orange Kush Mints"], ["Papaya", "Papaya Cake"], ["Wedding Cake", "Papaya Cake"], ["White OG", "Papaya Cake"], ["Do-Si-Dos", "Raspberry Dosido"], ["Pink Champagne", "Raspberry Dosido"], ["Cookies & Cream", "Scoops"], ["Gelato", "Scoops"], ["Tina", "Scoops"], ["Chemdawg", "Sour Diesel"], ["Super Skunk", "Sour Diesel"], ["Sour Power", "Sour Power OG"], ["Biker Kush", "Sour Power OG"], ["Strawberry", "Strawberries & Cream"], ["Cookies & Cream", "Strawberries & Cream"], ["GMO", "Tropicanna Garlic"], ["Tropicanna Cookies", "Tropicanna Garlic"], ["Skunk Valley Haze", "Tropicanna Haze"], ["Tropicanna Cookies", "Tropicanna Haze"], ["MK Ultra", "Ultra Sour Chem"], ["East Coast Sour Diesel", "Ultra Sour Chem"], ["Girl Scout Cookies", "Wedding Cake"], ["Cherry Pie", "Wedding Cake"], ["The White", "White OG"], ["OG Kush", "White OG"], ["Mai Thai", "Zaitai"], ["Zookies", "Zaitai"]], "asOf": "2026-10-22"};
+const TYPE = { Indica: 'var(--indica)', Sativa: 'var(--sativa)', Hybrid: 'var(--hybrid)' };
+const TC = { Indica: '#C4B5FD', Sativa: '#FCD34D', Hybrid: '#86EFAC' };
+const byName = {};
+DATA.strains.forEach(s => byName[s.name] = s);
+const nodes = DATA.strains.map(s => ({ id: s.name, kind: 'redbird', s }))
+  .concat(DATA.outside.map(n => ({ id: n, kind: 'outside' })));
+const N = {}; nodes.forEach(n => N[n.id] = n);
+const links = DATA.links.map(([p, c]) => ({ source: p, target: c, house: !!byName[p] }));
+const parentsOf = {}, childrenOf = {};
+DATA.links.forEach(([p, c]) => { (parentsOf[c] = parentsOf[c] || []).push(p); (childrenOf[p] = childrenOf[p] || []).push(c); });
+nodes.forEach(n => n.deg = (parentsOf[n.id] || []).length + (childrenOf[n.id] || []).length);
+const R = n => n.kind === 'redbird' ? 11 + Math.min(6, (childrenOf[n.id] || []).length * 2) : 3.5 + Math.min(3, ((childrenOf[n.id] || []).length - 1) * 1.2);
+
+const svg = d3.select('#map');
+const W = () => svg.node().clientWidth, H = () => svg.node().clientHeight;
+const root = svg.append('g');
+// faint background stars (fixed, decorative)
+const stars = svg.insert('g', ':first-child').attr('class', 'stars');
+(function drawStars() { const w = 2400, h = 1600; let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  for (let i = 0; i < 260; i++) stars.append('circle').attr('cx', rnd() * w).attr('cy', rnd() * h).attr('r', rnd() * 1.1 + .2).attr('opacity', rnd() * .35 + .05); })();
+
+const linkSel = root.append('g').selectAll('line').data(links).join('line').attr('class', d => 'link' + (d.house ? ' house' : ''));
+const nodeSel = root.append('g').selectAll('g').data(nodes).join('g')
+  .attr('class', d => 'node ' + d.kind + (d.kind === 'redbird' && d.s.inFlower ? ' flower' : ''))
+  .attr('tabindex', 0).attr('role', 'button').attr('aria-label', d => d.id);
+nodeSel.append('circle').attr('class', 'halo').attr('r', d => R(d) + 9);
+nodeSel.append('circle').attr('class', 'dot').attr('r', R).attr('fill', d => d.kind === 'redbird' ? TC[d.s.type] || TC.Hybrid : null);
+nodeSel.append('text').text(d => d.id).attr('dy', d => R(d) + (d.kind === 'redbird' ? 15 : 12)).attr('text-anchor', 'middle');
+
+const sim = d3.forceSimulation(nodes)
+  .force('link', d3.forceLink(links).id(d => d.id).distance(d => d.house ? 70 : 52).strength(.7))
+  .force('charge', d3.forceManyBody().strength(d => d.kind === 'redbird' ? -320 : -110))
+  .force('collide', d3.forceCollide(d => R(d) + (d.kind === 'redbird' ? 22 : 10)))
+  .force('x', d3.forceX(0).strength(.045)).force('y', d3.forceY(0).strength(.06))
+  .stop();
+for (let i = 0; i < 420; i++) sim.tick();
+const tick = () => {
+  linkSel.attr('x1', d => d.source.x).attr('y1', d => d.source.y).attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+  nodeSel.attr('transform', d => `translate(${d.x},${d.y})`);
+};
+tick();
+sim.on('tick', tick);
+
+// outside-parent labels only when zoomed in or highlighted
+let k = 1;
+const labels = () => nodeSel.select('text').attr('opacity', d => d.kind === 'redbird' || k > 1.25 || d.hi ? 1 : 0);
+const zoom = d3.zoom().scaleExtent([.3, 4]).on('zoom', e => { root.attr('transform', e.transform); k = e.transform.k; labels(); });
+svg.call(zoom).on('dblclick.zoom', null);
+
+function fit(ids, ms = 700) {
+  const pts = (ids ? ids.map(i => N[i]) : nodes).filter(Boolean);
+  const x0 = d3.min(pts, d => d.x) - 60, x1 = d3.max(pts, d => d.x) + 60, y0 = d3.min(pts, d => d.y) - 50, y1 = d3.max(pts, d => d.y) + 60;
+  const panel = !document.getElementById('panel').hidden, narrow = W() < 720;
+  const aw = W() - (panel && !narrow ? 340 : 0), ah = H() * (panel && narrow ? .45 : 1);
+  const s = Math.max(.3, Math.min(ids ? 2.2 : 1.6, .92 / Math.max((x1 - x0) / aw, (y1 - y0) / ah)));
+  const t = d3.zoomIdentity.translate(aw / 2 - s * (x0 + x1) / 2, ah / 2 - s * (y0 + y1) / 2).scale(s);
+  svg.transition().duration(matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : ms).call(zoom.transform, t);
+}
+
+// drag a node
+nodeSel.call(d3.drag()
+  .on('start', (e, d) => { if (!e.active) sim.alphaTarget(.2).restart(); d.fx = d.x; d.fy = d.y; })
+  .on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; })
+  .on('end', (e, d) => { if (!e.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }));
+
+// selection
+let sel = null;
+const panel = document.getElementById('panel');
+function family(id) {
+  const parents = parentsOf[id] || [], children = childrenOf[id] || [];
+  const sib = new Set(); parents.forEach(p => (childrenOf[p] || []).forEach(c => c !== id && sib.add(c)));
+  return { parents, children, siblings: [...sib] };
+}
+function chips(list) {
+  if (!list.length) return '<div class="empty">None in the data</div>';
+  return '<div class="list">' + list.slice().sort((a, b) => (byName[b] ? 1 : 0) - (byName[a] ? 1 : 0) || a.localeCompare(b)).map(n => {
+    const s = byName[n]; const c = s ? (TC[s.type] || TC.Hybrid) : '#6D6A7A';
+    return `<button data-go="${n.replace(/"/g, '&quot;')}"><i style="background:${c}"></i>${n}</button>`; }).join('') + '</div>';
+}
+const fmt = k => { if (!k) return ''; const [y, m, d] = k.split('-'); return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m - 1] + ' ' + (+d); };
+function select(id) {
+  sel = id; const n = N[id]; if (!n) return;
+  const f = family(id), on = new Set([id, ...f.parents, ...f.children, ...f.siblings]);
+  nodes.forEach(d => d.hi = on.has(d.id));
+  root.classed('dim', true);
+  nodeSel.classed('hi', d => d.hi).classed('sel', d => d.id === id);
+  linkSel.classed('hi', l => (l.target.id === id || l.source.id === id) || (f.parents.includes(l.source.id) && f.siblings.includes(l.target.id)));
+  labels();
+  document.getElementById('hint').hidden = true;
+  if (n.kind === 'redbird') {
+    const s = n.s;
+    const status = s.inFlower ? (s.next ? 'In flower · harvest ' + fmt(s.next) : 'In the flower rooms now') : 'Not in the flower rooms right now';
+    panel.innerHTML = `<button class="close" aria-label="Close">×</button>
+      <div class="p-eyebrow">Redbird strain</div><h2 class="p-name">${s.name}</h2>
+      <div class="tags"><span class="tag ${s.type}">${s.type}</span>${s.section === 'Beta Bud' ? '<span class="tag beta">Beta Bud</span>' : ''}${s.inFlower ? '<span class="tag flower">In flower</span>' : ''}</div>
+      <dl class="facts"><dt>Genetics</dt><dd>${s.genetics}</dd><dt>Breeder</dt><dd>${s.breeder || '—'}</dd><dt>Status</dt><dd>${status}</dd>${s.phenos > 1 ? `<dt>Phenos</dt><dd>${s.phenos} being tested</dd>` : ''}</dl>
+      <div class="group"><h3>Parents</h3>${chips(f.parents)}</div>
+      <div class="group"><h3>Its kids at Redbird</h3>${chips(f.children)}</div>
+      <div class="group"><h3>Shares a parent with</h3>${chips(f.siblings)}</div>`;
+  } else {
+    panel.innerHTML = `<button class="close" aria-label="Close">×</button>
+      <div class="p-eyebrow">Outside parent</div><h2 class="p-name">${id}</h2>
+      <div class="group"><h3>Redbird strains from it</h3>${chips(f.children)}</div>
+      <div class="note">Not grown by Redbird. It shows up in the genetics of the strains above.</div>`;
+  }
+  panel.hidden = false;
+  panel.querySelector('.close').onclick = clear;
+  panel.querySelectorAll('[data-go]').forEach(b => b.onclick = () => select(b.dataset.go));
+  fit([...on]);
+}
+function clear() {
+  sel = null; nodes.forEach(d => d.hi = false); root.classed('dim', false);
+  nodeSel.classed('hi', false).classed('sel', false); linkSel.classed('hi', false); labels(); panel.hidden = true; fit(null);
+}
+nodeSel.on('click', (e, d) => { e.stopPropagation(); select(d.id); })
+  .on('keydown', (e, d) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(d.id); } });
+svg.on('click', () => { if (sel) clear(); });
+
+// type filter
+const types = { Indica: true, Sativa: true, Hybrid: true };
+function applyTypes() {
+  const visible = id => { const s = byName[id]; return s ? types[s.type] !== false : (childrenOf[id] || []).some(c => types[byName[c].type] !== false); };
+  nodeSel.style('display', d => visible(d.id) ? null : 'none');
+  linkSel.style('display', l => visible(l.source.id) && visible(l.target.id) ? null : 'none');
+}
+document.querySelectorAll('.chip[data-type]').forEach(b => b.onclick = () => {
+  types[b.dataset.type] = !types[b.dataset.type]; b.setAttribute('aria-pressed', types[b.dataset.type]); applyTypes(); });
+document.getElementById('reset').onclick = () => {
+  Object.keys(types).forEach(t => types[t] = true); document.querySelectorAll('.chip[data-type]').forEach(b => b.setAttribute('aria-pressed', 'true'));
+  applyTypes(); clear(); };
+
+// search
+const q = document.getElementById('q'), res = document.getElementById('results');
+const all = nodes.map(n => n.id).sort((a, b) => (byName[b] ? 1 : 0) - (byName[a] ? 1 : 0) || a.localeCompare(b));
+q.addEventListener('input', () => {
+  const v = q.value.trim().toLowerCase(); if (!v) { res.hidden = true; return; }
+  const hits = all.filter(n => n.toLowerCase().includes(v)).slice(0, 7);
+  res.innerHTML = hits.map((n, i) => `<button data-go="${n.replace(/"/g, '&quot;')}" class="${i ? '' : 'on'}">${n}<small>${byName[n] ? byName[n].type : 'parent'}</small></button>`).join('') || '<div class="empty" style="padding:10px 12px">No match</div>';
+  res.hidden = false;
+  res.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { select(b.dataset.go); q.value = ''; res.hidden = true; q.blur(); });
+});
+q.addEventListener('keydown', e => { if (e.key === 'Enter') { const b = res.querySelector('[data-go]'); if (b) b.click(); } if (e.key === 'Escape') { q.value = ''; res.hidden = true; } });
+
+labels();
+requestAnimationFrame(() => fit(null, 0));
+addEventListener('resize', () => sel ? select(sel) : fit(null, 0));
+</script>
+
+</body>
+</html>
